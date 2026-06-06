@@ -1,0 +1,266 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+
+datasource db {
+
+  provider = "postgresql"
+
+  url      = env("DATABASE_URL")
+
+}
+
+
+
+enum Role {
+
+  CLIENT
+
+  ADMIN
+
+}
+
+
+
+enum OrderStatus {
+
+  DRAFT
+
+  RECEIVED
+
+  DESIGN
+
+  PRODUCTION
+
+  READY
+
+  COMPLETED
+
+  CANCELLED
+
+}
+
+
+
+model User {
+
+  id           String    @id @default(uuid())
+
+  email        String    @unique
+
+  passwordHash String
+
+  name         String
+
+  role         Role      @default(CLIENT)
+
+  createdAt    DateTime  @default(now())
+
+  updatedAt    DateTime  @updatedAt
+
+
+
+  clientProfile          ClientProfile?
+
+  orders                 Order[]                 @relation("CustomerOrders")
+
+  workshopRegistrations  WorkshopRegistration[]
+
+}
+
+
+
+model ClientProfile {
+
+  id        String   @id @default(uuid())
+
+  userId    String   @unique
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  phone     String?
+
+  address   String?
+
+}
+
+
+
+model Workshop {
+
+  id          String   @id @default(uuid())
+
+  title       String
+
+  description String?
+
+  topic       String
+
+  startAt     DateTime
+
+  endAt       DateTime
+
+  place       String   @default("Студия")
+
+  maxSeats    Int      @default(12)
+
+  priceHint   Decimal? @db.Decimal(10, 2)
+
+  createdAt   DateTime @default(now())
+
+
+
+  registrations WorkshopRegistration[]
+
+}
+
+
+
+model WorkshopRegistration {
+
+  id          String   @id @default(uuid())
+
+  workshopId  String
+
+  workshop    Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  userId      String
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+
+
+
+  @@unique([workshopId, userId])
+
+}
+
+
+
+model Service {
+
+  id          String   @id @default(uuid())
+
+  name        String
+
+  description String?
+
+  basePrice   Decimal  @db.Decimal(10, 2)
+
+  durationMin Int      @default(60)
+
+
+
+  orderItems OrderItem[]
+
+}
+
+
+
+// Материалы для декора (стразы, краски, нитки); учёт в ед., не ткани на пошив.
+
+model DecoSupply {
+
+  id           String   @id @default(uuid())
+
+  name         String
+
+  color        String
+
+  category     String
+
+  packNote     String?
+
+  stockQty     Float
+
+  pricePerUnit Decimal  @db.Decimal(10, 2)
+
+  supplier     String?
+
+
+
+  orderItems OrderItem[]
+
+}
+
+
+
+model Order {
+
+  id         String      @id @default(uuid())
+
+  customerId String
+
+  customer   User        @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Cascade)
+
+  status     OrderStatus @default(DRAFT)
+
+  title      String
+
+  totalPrice Decimal?    @db.Decimal(12, 2)
+
+  deadline   DateTime?
+
+  notes      String?
+
+  createdAt  DateTime    @default(now())
+
+  updatedAt  DateTime    @updatedAt
+
+
+
+  items         OrderItem[]
+
+  statusLog     OrderStatusHistory[]
+
+}
+
+
+
+model OrderItem {
+
+  id        String   @id @default(uuid())
+
+  orderId   String
+
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  serviceId String
+
+  service   Service  @relation(fields: [serviceId], references: [id])
+
+  supplyId  String?
+
+  supply    DecoSupply? @relation(fields: [supplyId], references: [id])
+
+  quantity  Int      @default(1)
+
+  unitPrice Decimal  @db.Decimal(10, 2)
+
+  itemNotes String?
+
+}
+
+
+
+model OrderStatusHistory {
+
+  id        String      @id @default(uuid())
+
+  orderId   String
+
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  status    OrderStatus
+
+  message   String?
+
+  createdAt DateTime    @default(now())
+
+}
+
+
+
