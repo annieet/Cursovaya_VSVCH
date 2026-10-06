@@ -274,6 +274,69 @@ export function HomePage() {
       </Paper>
       </Box>
 
+        
+{/* Демонстрационный рекламный блок для модели распространения Adware */}
+        <Box
+  sx={{
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%',
+    mb: 4,
+    px: 2,
+  }}
+>
+  <Paper
+    elevation={0}
+    sx={{
+      width: '100%',
+      maxWidth: 760,
+      p: { xs: 2, sm: 2.5 },
+      borderRadius: '14px',
+      border: '1px solid rgba(5,5,5,0.10)',
+      bgcolor: 'background.paper',
+    }}
+  >
+    <Typography
+      variant="overline"
+      sx={{
+        display: 'block',
+        mb: 0.5,
+        color: 'text.secondary',
+        fontWeight: 600,
+      }}
+    >
+      Реклама
+    </Typography>
+
+    <Typography
+      variant="h6"
+      sx={{
+        mb: 0.75,
+        fontWeight: 700,
+      }}
+    >
+      Новая коллекция кроссовок — дополни свой образ
+    </Typography>
+
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      sx={{ mb: 1.5 }}
+    >
+      Подбери обувь и аксессуары, которые сочетаются с твоим кастомным образом.
+    </Typography>
+
+    <Button
+      variant="outlined"
+      color="secondary"
+      size="small"
+    >
+      Подробнее
+    </Button>
+  </Paper>
+</Box>
+        
+
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4, width: '100%' }}>
         <Box
           sx={{
